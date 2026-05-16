@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>实操考试 - 试题一（简化版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* 顶部导航栏 */
+        .top-header {
+            background: linear-gradient(135deg, #2E5AAC 0%, #1e4a9e 100%);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .window-title {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .status-icon.charging {
+            color: #4ade80;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+        }
+
+        /* 信息栏 */
+        .info-bar {
+            background: linear-gradient(135deg, #e8e4f0 0%, #d4e4f7 100%);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d1d5db;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .subject-info {
+            font-size: 15px;
+            color: #374151;
+        }
+
+        .subject-info span {
+            font-weight: 600;
+            color: #1e4a9e;
+        }
+
+        .time-info {
+            font-size: 15px;
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        /* Tab导航 - 居中 */
+        .tab-nav {
+            background: white;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #e5e7eb;
+            height: 50px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            padding: 14px 40px;
+            font-size: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #2E5AAC;
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: #2E5AAC;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #374151;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            height: calc(100vh - 150px);
+        }
+
+        /* 内容区域 */
+        .content-area {
+            flex: 1;
+            background: white;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        /* Tab内容显示/隐藏 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 考试页内容 - 只读显示 */
+        .exam-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .question-card {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #2E5AAC 0%, #1e4a9e 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .question-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .question-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+
+        .question-text .blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid #2E5AAC;
+            margin: 0 4px;
+            text-align: center;
+            color: #2E5AAC;
+            background: #f0f4ff;
+            padding: 2px 8px;
+        }
+
+        /* 实验记录页内容 - 带输入框 */
+        .record-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .record-section {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 填空题样式 */
+        .fill-blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid #2E5AAC;
+            margin: 0 4px;
+            padding: 2px 8px;
+            background: #f0f4ff;
+        }
+
+        .fill-blank input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: center;
+            font-size: inherit;
+            font-family: inherit;
+            outline: none;
+            min-width: 60px;
+        }
+
+        /* 右侧监控区 */
+        .sidebar {
+            width: 280px;
+            background: #f8fafc;
+            border-left: 1px solid #e5e7eb;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .camera-section {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .camera-title {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .camera-feed {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #1f2937;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-feed.active {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        }
+
+        .camera-feed canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .camera-time {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            font-size: 11px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .camera-placeholder {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #2E5AAC 0%, #1e4a9e 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: auto;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46,90,172,0.3);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            background: #1f2937;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 6px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-btn:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .question-indicator {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 滚动提示 */
+        .scroll-hint {
+            position: fixed;
+            right: 300px;
+            top: 50%;
+            transform: translateY(-50%);
+            writing-mode: vertical-lr;
+            color: #dc2626;
+            font-size: 13px;
+            padding: 12px 8px;
+            background: rgba(254, 226, 226, 0.9);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        /* 平板横屏优化 */
+        @media screen and (orientation: landscape) {
+            .top-header {
+                height: 52px;
+                padding: 8px 20px;
+            }
+            
+            .info-bar {
+                height: 40px;
+                padding: 8px 24px;
+            }
+            
+            .tab-nav {
+                height: 46px;
+            }
+            
+            .tab-btn {
+                padding: 12px 36px;
+            }
+            
+            .main-content {
+                height: calc(100vh - 138px);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            .scroll-hint {
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="top-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <span class="window-title">rk3588_s</span>
+        </div>
+        <h1 class="header-title">实操考试</h1>
+        <div class="header-right">
+            <div class="status-item">
+                <svg class="status-icon charging" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                <span>充电中</span>
+            </div>
+            <div class="status-item">
+                <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <span>电子目镜</span>
+            </div>
+            <div class="status-item">
+                <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="2" width="20" height="8" rx="2"/>
+                    <rect x="2" y="14" width="20" height="8" rx="2"/>
+                    <circle cx="6" cy="6" r="1"/>
+                    <circle cx="6" cy="18" r="1"/>
+                </svg>
+                <span>服务器</span>
+            </div>
+            <button class="submit-btn" onclick="submitExam()">提前交卷</button>
+        </div>
+    </header>
+
+    <!-- 信息栏 -->
+    <div class="info-bar">
+        <div class="subject-info">科目：<span>生物学</span></div>
+        <div class="time-info">考试剩余时间：<span id="countdown">00:30:00</span></div>
+    </div>
+
+    <!-- Tab导航 - 居中 -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="exam" onclick="switchTab('exam')">实验试题</button>
+        <button class="tab-btn" data-tab="record" onclick="switchTab('record')">实验记录</button>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 考试页内容 - 只读显示 -->
+        <div class="content-area tab-content active" id="exam-tab">
+            <div class="exam-content">
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">1</span>
+                        <h2 class="question-title">制作西瓜果肉细胞临时装片，观察细胞结构</h2>
+                    </div>
+                    <div class="question-text">
+                        <p>你观察到的西瓜果肉细胞放大了______倍。</p>
+                        <p style="margin-top: 12px;">西瓜果肉细胞最外层的结构是______，与其紧贴在一起，光学显微镜下不易看清的结构是细胞膜。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 实验记录页内容 - 带输入框 -->
+        <div class="content-area tab-content" id="record-tab">
+            <div class="record-content">
+                <!-- 答案记录区 -->
+                <div class="record-section">
+                    <h3 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E5AAC" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        试题一答案填写
+                    </h3>
+                    
+                    <div class="question-text" style="margin-top: 16px;">
+                        <p>你观察到的西瓜果肉细胞放大了<span class="fill-blank"><input type="text" placeholder="___"></span>倍。</p>
+                        <p style="margin-top: 16px;">西瓜果肉细胞最外层的结构是<span class="fill-blank"><input type="text" placeholder="___"></span>，与其紧贴在一起，光学显微镜下不易看清的结构是细胞膜。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧监控区 -->
+        <aside class="sidebar">
+            <div class="camera-section">
+                <div class="camera-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 7l-7 5 7 5V7z"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg>
+                    摄像头 1 - 标本视图
+                </div>
+                <div class="camera-feed active" id="camera1">
+                    <canvas id="canvas1"></canvas>
+                    <span class="camera-time" id="time1">2023-09-16</span>
+                </div>
+            </div>
+
+            <div class="camera-section">
+                <div class="camera-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 7l-7 5 7 5V7z"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg>
+                    摄像头 2 - 工作台视图
+                </div>
+                <div class="camera-feed active" id="camera2">
+                    <canvas id="canvas2"></canvas>
+                    <span class="camera-time" id="time2">2023-09-16</span>
+                </div>
+            </div>
+
+            <div class="camera-section">
+                <div class="camera-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 7l-7 5 7 5V7z"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2"/>
+                    </svg>
+                    摄像头 3
+                </div>
+                <div class="camera-feed" id="camera3">
+                    <span class="camera-placeholder">未连接</span>
+                </div>
+            </div>
+
+            <button class="record-btn" onclick="fillRecord()">
+                <svg class="record-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                填写实验记录
+            </button>
+        </aside>
+    </main>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="prevQuestion()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        <span class="question-indicator">试题 1 / 3</span>
+        <button class="nav-btn" onclick="nextQuestion()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 滚动提示 -->
+    <div class="scroll-hint" onclick="scrollDown()">
+        向下滑动看完整的实验记录
+    </div>
+
+    <script>
+        // 倒计时功能
+        let totalSeconds = 30 * 60;
+        const countdownEl = document.getElementById('countdown');
+        
+        function updateCountdown() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                alert('考试时间已到，系统将自动提交！');
+                submitExam();
+            }
+        }
+        updateCountdown();
+
+        // Tab切换功能
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // 返回功能
+        function goBack() {
+            if (confirm('确定要退出考试吗？')) {
+                alert('已退出考试');
+            }
+        }
+
+        // 提交试卷
+        function submitExam() {
+            if (confirm('确定要提前交卷吗？提交后将无法修改答案。')) {
+                alert('试卷已提交成功！');
+            }
+        }
+
+        // 填写实验记录
+        function fillRecord() {
+            switchTab('record');
+        }
+
+        // 滚动提示
+        function scrollDown() {
+            const activeContent = document.querySelector('.tab-content.active');
+            if (activeContent) {
+                activeContent.scrollBy({
+                    top: 300,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            window.location.href = 'exam-question3.html';
+        }
+
+        // 下一题
+        function nextQuestion() {
+            window.location.href = 'exam-question2.html';
+        }
+
+        // 模拟摄像头画面
+        function initCameras() {
+            const canvas1 = document.getElementById('canvas1');
+            const canvas2 = document.getElementById('canvas2');
+            
+            if (canvas1) {
+                const ctx1 = canvas1.getContext('2d');
+                canvas1.width = 240;
+                canvas1.height = 180;
+                
+                function drawMicroscope() {
+                    ctx1.fillStyle = '#1a1a2e';
+                    ctx1.fillRect(0, 0, 240, 180);
+                    
+                    const time = Date.now() / 1000;
+                    for (let i = 0; i < 8; i++) {
+                        const x = 120 + Math.cos(time * 0.2 + i) * 60;
+                        const y = 90 + Math.sin(time * 0.15 + i) * 40;
+                        const r = 15 + Math.sin(time + i) * 3;
+                        
+                        ctx1.beginPath();
+                        ctx1.arc(x, y, r, 0, Math.PI * 2);
+                        ctx1.strokeStyle = '#4ade80';
+                        ctx1.lineWidth = 1.5;
+                        ctx1.stroke();
+                        
+                        ctx1.beginPath();
+                        ctx1.arc(x, y, r * 0.4, 0, Math.PI * 2);
+                        ctx1.fillStyle = '#22c55e';
+                        ctx1.fill();
+                    }
+                    
+                    requestAnimationFrame(drawMicroscope);
+                }
+                drawMicroscope();
+            }
+            
+            if (canvas2) {
+                const ctx2 = canvas2.getContext('2d');
+                canvas2.width = 240;
+                canvas2.height = 180;
+                
+                function drawWorkbench() {
+                    ctx2.fillStyle = '#2d2d44';
+                    ctx2.fillRect(0, 0, 240, 180);
+                    
+                    ctx2.fillStyle = '#4a4a6a';
+                    ctx2.fillRect(60, 40, 120, 100);
+                    ctx2.fillRect(80, 30, 80, 20);
+                    
+                    ctx2.fillStyle = '#3b82f6';
+                    ctx2.fillRect(70, 50, 100, 70);
+                    
+                    requestAnimationFrame(drawWorkbench);
+                }
+                drawWorkbench();
+            }
+        }
+
+        // 更新时间显示
+        function updateCameraTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '-');
+            
+            const time1 = document.getElementById('time1');
+            const time2 = document.getElementById('time2');
+            if (time1) time1.textContent = timeStr;
+            if (time2) time2.textContent = timeStr;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initCameras();
+            updateCameraTime();
+            setInterval(updateCameraTime, 1000);
+        });
+    </script>
+</body>
+</html>

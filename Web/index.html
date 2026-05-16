@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超级五班月报导航</title>
+    <!-- 网页图标(favicon)：浏览器标签页小图标，替换href为你的图标链接/本地路径即可 -->
+    <link rel="shortcut icon" href="../Others/85.ico" type="image/x-icon">
+    <link rel="icon" href="../Others/85.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", 微软雅黑, sans-serif;
+        }
+        body {
+            background-color: #f5f7f9;
+            color: #333;
+            scroll-behavior: smooth;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 顶部通栏 */
+        .top-bar {
+            width: 100%;
+            height: 50px;
+            background-color: #409eff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .top-bar .class-name {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        /* 整体容器 */
+        .container {
+            width: 1200px;
+            margin: 60px auto 0;
+            display: flex;
+            gap: 20px;
+            padding-bottom: 50px;
+            flex: 1;
+        }
+        /* 左侧侧边栏 */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+        }
+        .class-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f2f5;
+            margin-bottom: 20px;
+        }
+        /* 图片班徽样式（自动圆形适配） */
+        .class-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            overflow: hidden;
+            border: 2px solid #e6f2ff;
+        }
+        .class-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .class-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .class-info p {
+            font-size: 12px;
+            color: #909399;
+            margin-top: 5px;
+        }
+        /* 导航菜单 */
+        .nav-menu {
+            list-style: none;
+            padding: 0 10px;
+        }
+        .nav-menu li {
+            margin-bottom: 5px;
+            border-radius: 6px;
+        }
+        .nav-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #606266;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-menu li.active a {
+            background-color: #e6f2ff;
+            color: #409eff;
+            font-weight: 600;
+        }
+        .nav-menu a:hover {
+            background-color: #f5f7fa;
+            color: #409eff;
+        }
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        /* 主体内容区 */
+        .main-content {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .main-content .section {
+            margin-bottom: 50px;
+            padding-top: 10px;
+        }
+        /* 板块标题（深黑粗体，最醒目） */
+        .main-content h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f2f5;
+            font-weight: 700;
+            color: #222;
+        }
+        /* 正文文字（浅黑粗体，比标题浅，更醒目） */
+        .main-content .tip {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        /* 班级活动-照片排版 */
+        .photo-wall {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .photo-item {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-item:hover {
+            transform: scale(1.03);
+        }
+        /* 历史月报-微博式消息卡片 */
+        .weibo-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .weibo-card {
+            padding: 20px;
+            border: 1px solid #f0f2f5;
+            border-radius: 8px;
+            transition: box-shadow 0.3s;
+        }
+        .weibo-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .weibo-card .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .weibo-card .card-time {
+            font-size: 12px;
+            color: #909399;
+            font-weight: normal;
+        }
+        .weibo-card .card-desc {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-weight: 500;
+        }
+        .weibo-card .card-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #e6f2ff;
+            color: #409eff;
+            font-size: 12px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .weibo-card .card-btn:hover {
+            background-color: #409eff;
+            color: #fff;
+        }
+        /* 底部版权声明栏 */
+        .copyright {
+            width: 100%;
+            height: 60px;
+            background-color: #fff;
+            margin-top: 30px;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #909399;
+            font-weight: 400;
+        }
+        /* 响应式适配 */
+        @media (max-width: 1200px) {
+            .container {
+                width: 95%;
+            }
+            .photo-wall {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 180px;
+            }
+            .class-avatar {
+                width: 60px;
+                height: 60px;
+            }
+            .photo-wall {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .copyright {
+                font-size: 12px;
+                padding: 0 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部固定通栏 -->
+    <div class="top-bar">
+        <div class="class-name">超级五班月报导航</div>
+    </div>
+
+    <!-- 整体内容容器 -->
+    <div class="container">
+        <!-- 左侧导航栏（图片班徽版） -->
+        <aside class="sidebar">
+            <div class="class-info">
+                <!-- 图片班徽：直接替换src里的链接为你的班徽图片链接/本地路径 -->
+                <div class="class-avatar">
+                    <img src="../Others/85.png" alt="班级徽章">
+                </div>
+                <h3>超级五班</h3>
+                <p>本月月报 · 2026年1月</p>
+            </div>
+            <ul class="nav-menu">
+                <li data-target="summary"><a href="#summary"><span class="nav-icon">📋</span>本月班级总结</a></li>
+                <li data-target="activity"><a href="#activity"><span class="nav-icon">📸</span>班级活动记录</a></li>
+                <li data-target="study"><a href="#study"><span class="nav-icon">📚</span>学习情况榜单</a></li>
+                <li data-target="honor"><a href="#honor"><span class="nav-icon">🏆</span>班级荣誉墙</a></li>
+                <li data-target="notice"><a href="#notice"><span class="nav-icon">📢</span>下月重点通知</a></li>
+                <li data-target="suggest"><a href="#suggest"><span class="nav-icon">💡</span>同学建言献策</a></li>
+                <li data-target="file"><a href="#file"><span class="nav-icon">📁</span>月报文件下载</a></li>
+                <li data-target="history"><a href="#history"><span class="nav-icon">📜</span>历史月报归档</a></li>
+            </ul>
+        </aside>
+
+        <!-- 右侧主体内容区（正文字体加黑优化） -->
+        <main class="main-content">
+            <!-- 本月班级总结 -->
+            <div class="section" id="summary">
+                <h2>本月班级总结</h2>
+                <p class="tip">2026年1月，本班完成了期末复习、元旦联欢、班级评优等多项工作，整体班风积极向上，学习氛围浓厚。全班同学在期末检测中整体成绩较上月提升8%，元旦联欢活动被学校评为"优秀班级活动"，特此总结表彰。</p>
+            </div>
+
+            <!-- 班级活动记录（20张照片） -->
+            <div class="section" id="activity">
+                <h2>班级活动记录</h2>
+                <p class="tip">本月开展元旦联欢、期末学习互助、校园志愿清扫3项活动，以下为活动现场照片（共20张，点击可预览大图）</p>
+                <div class="photo-wall">
+                    <!-- 元旦联欢/班会照片（1-8张）- 替换src为你的班会照片 -->
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=1" alt="元旦联欢-节目表演"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=2" alt="元旦联欢-游戏环节"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=3" alt="元旦联欢-集体合影"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=4" alt="元旦联欢-美食分享"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=5" alt="元旦联欢-才艺展示"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=6" alt="元旦联欢-颁奖环节"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=7" alt="元旦联欢-师生互动"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=8" alt="元旦联欢-班级装饰"></div>
+                    <!-- 学习互助活动（9-15张） -->
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=9" alt="学习互助-小组讨论"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=10" alt="学习互助-难题讲解"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=11" alt="学习互助-作业辅导"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=12" alt="学习互助-背诵打卡"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=13" alt="学习互助-错题整理"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=14" alt="学习互助-学习打卡墙"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=15" alt="学习互助-优秀作业展示"></div>
+                    <!-- 校园志愿活动（16-20张） -->
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=16" alt="志愿清扫-校园拾捡"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=17" alt="志愿清扫-教室整理"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=18" alt="志愿清扫-花园养护"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=19" alt="志愿清扫-工具整理"></div>
+                    <div class="photo-item"><img src="https://picsum.photos/400/400?random=20" alt="志愿清扫-志愿合影"></div>
+                </div>
+            </div>
+
+            <!-- 学习情况榜单 -->
+            <div class="section" id="study">
+                <h2>学习情况榜单</h2>
+                <p class="tip">本月期末复习阶段，班级各科平均分排名年级第3，数学、英语学科平均分位列年级第2，以下为班级单科前十、总分前十及进步之星榜单（附分数及排名变化）。</p>
+            </div>
+
+            <!-- 班级荣誉墙 -->
+            <div class="section" id="honor">
+                <h2>班级荣誉墙</h2>
+                <p class="tip">2026年1月班级所获荣誉：学校"元旦联欢优秀班级"、年级"期末复习先进班级"、校园"志愿服务示范班级"；3名同学获校级"三好学生"，5名同学获"学习标兵"，2名同学获"才艺之星"。</p>
+            </div>
+
+            <!-- 下月重点通知 -->
+            <div class="section" id="notice">
+                <h2>下月重点通知</h2>
+                <p class="tip">2026年2月重点工作：1. 1月30日完成期末检测试卷订正及家长签字；2. 2月5日-2月18日开展寒假线上学习打卡；3. 2月20日开学报到，携带寒假作业及实践报告；4. 开学后第一周进行寒假知识检测。</p>
+            </div>
+
+            <!-- 同学建言献策 -->
+            <div class="section" id="suggest">
+                <h2>同学建言献策</h2>
+                <p class="tip">本月共收集同学建言28条，其中学习类15条（建议增加自习课、更新班级图书角等），活动类8条（建议开展春游、球类比赛等），班级建设类5条（建议完善班级奖惩制度、增加班级绿植等），已采纳22条并逐步落实。</p>
+            </div>
+
+            <!-- 月报文件下载 -->
+            <div class="section" id="file">
+                <h2>月报文件下载</h2>
+                <p class="tip">2026年1月班级月报完整文档（Word版/Excel版）、班级活动照片压缩包、学习榜单表格，可点击下方链接下载（提取码：xg3b），有效期30天。</p>
+            </div>
+
+            <!-- 历史月报归档（10条微博式消息，可跳转） -->
+            <div class="section" id="history">
+                <h2>历史月报归档</h2>
+                <p class="tip">以下为2025年3月-2025年12月共10期历史月报，点击「查看详情」可跳转至对应月报详情页（外部链接），含完整数据及图文记录</p>
+                <div class="weibo-card-list">
+                    <div class="weibo-card">
+                        <div class="card-title">2025年12月班级月报 <span class="card-time">2025-12-31</span></div>
+                        <div class="card-desc">本月完成校园艺术节、冬季运动会、期中总结等工作，班级获艺术节团体二等奖，冬季运动会年级总分第4，12名同学获期中表彰。</div>
+                        <a href="https://www.xxx.com/202512" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年11月班级月报 <span class="card-time">2025-11-30</span></div>
+                        <div class="card-desc">本月开展期中复习、班级读书分享会、消防安全演练等活动，期中检测班级整体成绩较上月提升5%，读书分享会被评为年级优秀活动。</div>
+                        <a href="https://www.xxx.com/202511" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年10月班级月报 <span class="card-time">2025-10-31</span></div>
+                        <div class="card-desc">本月完成国庆主题班会、秋季研学、第一次月考等工作，秋季研学获学校"优秀研学班级"，月考班级各科平均分位列年级第5。</div>
+                        <a href="https://www.xxx.com/202510" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年9月班级月报 <span class="card-time">2025-09-30</span></div>
+                        <div class="card-desc">本月为新学期开学月，完成班级班委改选、开学第一课、军训总结等工作，军训获"优秀军训班级"，班委改选顺利完成新一届班委会组建。</div>
+                        <a href="https://www.xxx.com/202509" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年8月班级月报 <span class="card-time">2025-08-31</span></div>
+                        <div class="card-desc">本月开展暑假线上学习打卡、暑期实践活动总结等工作，全班95%同学完成暑假学习打卡，18名同学获"暑期实践优秀个人"。</div>
+                        <a href="https://www.xxx.com/202508" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年7月班级月报 <span class="card-time">2025-07-31</span></div>
+                        <div class="card-desc">本月完成期末考试、暑假安排部署、班级评优等工作，期末考试班级整体成绩位列年级第4，8名同学获校级评优，10名同学获班级评优。</div>
+                        <a href="https://www.xxx.com/202507" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年6月班级月报 <span class="card-time">2025-06-30</span></div>
+                        <div class="card-desc">本月开展六一儿童节活动、期末复习动员、校园环保宣传等工作，六一活动获学校好评，期末复习动员大会顺利召开，明确复习计划。</div>
+                        <a href="https://www.xxx.com/202506" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年5月班级月报 <span class="card-time">2025-05-31</span></div>
+                        <div class="card-desc">本月完成五四青年节主题班会、期中考试、春季运动会等工作，五四班会获"优秀主题班会"，春季运动会班级获团体三等奖。</div>
+                        <a href="https://www.xxx.com/202505" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年4月班级月报 <span class="card-time">2025-04-30</span></div>
+                        <div class="card-desc">本月开展清明祭扫、班级春游、学科竞赛等工作，清明祭扫获校级"优秀组织奖"，3名同学在学科竞赛中获市级奖项，5名同学获区级奖项。</div>
+                        <a href="https://www.xxx.com/202504" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                    <div class="weibo-card">
+                        <div class="card-title">2025年3月班级月报 <span class="card-time">2025-03-31</span></div>
+                        <div class="card-desc">本月为新学期首个完整月，完成开学适应教育、班级文化建设、第一次单元检测等工作，班级文化建设获"优秀班级文化"称号，单元检测整体良好。</div>
+                        <a href="https://www.xxx.com/202503" target="_blank" class="card-btn">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 网页底部版权声明（新增） -->
+    <div class="copyright">
+        ©2026  超级五班月报导航 | 所有内容均为班级内部使用，禁止私自转发!!!违者必究!!!
+    </div>
+
+    <script>
+        // 全局元素获取
+        const navItems = document.querySelectorAll('.nav-menu li');
+        const sections = document.querySelectorAll('.main-content .section');
+        const photoItems = document.querySelectorAll('.photo-item');
+
+        // 1. 导航点击切换active+平滑滚动
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                navItems.forEach(li => li.classList.remove('active'));
+                item.classList.add('active');
+                const targetId = item.dataset.target;
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 2. 滚动联动导航高亮核心功能
+        function highlightNavOnScroll() {
+            const scrollTop = window.scrollY + 70;
+            let currentActive = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollTop >= sectionTop && scrollTop < sectionTop + sectionHeight) {
+                    currentActive = section.id;
+                }
+            });
+            navItems.forEach(item => {
+                item.dataset.target === currentActive ? item.classList.add('active') : item.classList.remove('active');
+            });
+        }
+        // 节流优化
+        let throttleTimer = null;
+        window.addEventListener('scroll', () => {
+            if (!throttleTimer) {
+                throttleTimer = setTimeout(() => {
+                    highlightNavOnScroll();
+                    throttleTimer = null;
+                }, 50);
+            }
+        });
+        window.addEventListener('load', highlightNavOnScroll);
+
+        // 3. 照片点击放大预览
+        photoItems.forEach(photo => {
+            photo.addEventListener('click', () => {
+                const imgSrc = photo.querySelector('img').src;
+                const imgAlt = photo.querySelector('img').alt;
+                const preview = document.createElement('div');
+                preview.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+                preview.innerHTML = `<img src="${imgSrc}" alt="${imgAlt}" style="max-width:90%;max-height:90%;border-radius:6px;">`;
+                document.body.appendChild(preview);
+                preview.addEventListener('click', () => document.body.removeChild(preview));
+            });
+        });
+    </script>
+</body>
+</html>
