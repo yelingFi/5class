@@ -50,21 +50,9 @@
             padding:20px;max-width:950px;margin:0 auto;
         }
         h1{font-size:1.8rem;text-shadow:0 0 10px var(--text2);}
-        /* 新增：背景音乐音量控制样式 */
-        .bgm-control{
-            display:flex;align-items:center;gap:8px;margin-left:15px;
-        }
-        .bgm-label{font-size:0.9rem;color:var(--text2);}
-        .volume-slider{
-            width:100px;height:6px;border-radius:3px;
-            background:rgba(255,255,255,0.2);
-            outline:none;appearance:none;
-            cursor:pointer;
-        }
-        .volume-slider::-webkit-slider-thumb{
-            appearance:none;width:16px;height:16px;
-            border-radius:50%;background:#64b5f6;
-            box-shadow:0 0 5px rgba(100,181,246,0.8);
+        #themeToggle{
+            padding:8px 16px;border:none;border-radius:20px;
+            background:var(--btn);color:#fff;cursor:pointer;
         }
         .container{max-width:950px;margin:0 auto;padding:20px;}
         .list-title{margin:10px 0 15px;font-size:1.2rem;}
@@ -170,27 +158,13 @@
     <div class="star-bg" id="starBox"></div>
     <header>
         <h1>🌠 流星雨故事会</h1>
-        <div style="display:flex;align-items:center;">
-            <!-- 移除了点我没用按钮 -->
-            <!-- 新增：背景音乐音量控制 -->
-            <div class="bgm-control">
-                <span class="bgm-label">背景音乐：</span>
-                <input type="range" class="volume-slider" id="bgmVolume" min="0" max="1" step="0.05" value="0.5">
-            </div>
-        </div>
+        <button id="themeToggle">切换黑白模式</button>
     </header>
     <div class="container">
         <h2 class="list-title">故事列表 · 点击播放音频</h2>
         <div class="story-list" id="storyList"></div>
     </div>
-    
-    <!-- 新增：背景音乐音频标签 -->
-    <audio id="bgmPlayer" loop autoplay>
-        <source src="./audio/nzs.mp3" type="audio/mpeg">
-        您的浏览器不支持音频播放
-    </audio>
     <audio id="audioPlayer"></audio>
-    
     <!-- 播放器 -->
     <div class="player-modal" id="playerModal">
         <div class="player-title" id="playerTitle">暂无播放曲目</div>
@@ -215,7 +189,6 @@
             </select>
         </div>
     </div>
-    
     <!-- VIP 验证弹窗 -->
     <div class="vip-modal" id="vipModal">
         <div class="vip-box">
@@ -228,7 +201,7 @@
             </div>
         </div>
     </div>
-    <footer>流星雨睡前故事 | 未完待续 | 特邀:流星雨,zino(排名不分先后)</footer>
+    <footer>流星雨睡前故事 | 未完待续</footer>
 
     <script>
         // ==============================================
@@ -236,8 +209,8 @@
         // false = 普通（直接播放）
         // ==============================================
         const storyList = [
-            { title: "喜欢下雨的小猫by 流星雨", audioSrc: "./audio/story1.mp3", isVip: true },
-            { title: "月亮下的小狐狸by zino", audioSrc: "./audio/story2.mp3", isVip: true },
+            { title: "喜欢下雨的小猫", audioSrc: "./audio/story1.mp3", isVip: true },
+            { title: "月亮下的小狐狸", audioSrc: "./audio/story2.mp3", isVip: true },
             { title: "故事03", audioSrc: "audio/story03.mp3", isVip: false },
             { title: "故事04", audioSrc: "audio/story04.mp3", isVip: false },
             { title: "故事05", audioSrc: "audio/story05.mp3", isVip: false },
@@ -288,7 +261,7 @@
             { title: "故事50", audioSrc: "audio/story50.mp3", isVip: false }
         ];
 
-        const VIP_PASSWORD = "我要入团之好高级呀"; 
+        const VIP_PASSWORD = "我要入党之好高级呀"; 
         let currentStoryIndex = null;
 
         // 渲染故事列表
@@ -317,33 +290,6 @@
         const btnUnlock = document.getElementById("btnUnlock");
         const btnCancel = document.getElementById("btnCancel");
 
-        // 新增：背景音乐控制
-        const bgmPlayer = document.getElementById("bgmPlayer");
-        const bgmVolumeSlider = document.getElementById("bgmVolume");
-        
-        // 页面加载后尝试自动播放背景音乐（处理浏览器自动播放策略）
-        window.addEventListener('DOMContentLoaded', () => {
-            // 解决浏览器自动播放限制：需要用户交互后才能播放
-            const playBgm = () => {
-                bgmPlayer.play().catch(err => {
-                    console.log("背景音乐自动播放失败，需要用户交互后播放:", err);
-                });
-                // 只需要一次交互触发，之后移除事件
-                document.removeEventListener('click', playBgm);
-                document.removeEventListener('touchstart', playBgm);
-            };
-            // 监听首次用户交互
-            document.addEventListener('click', playBgm);
-            document.addEventListener('touchstart', playBgm);
-            
-            // 音量调节
-            bgmVolumeSlider.addEventListener('input', () => {
-                bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
-            });
-            // 初始音量设置
-            bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
-        });
-
         // 打开故事
         function openStory(idx) {
             const story = storyList[idx];
@@ -359,29 +305,18 @@
             vipPwdInput.focus();
         }
 
-        // 播放故事（新增：播放故事时降低背景音乐音量）
+        // 播放故事
         function playStory(idx) {
             const story = storyList[idx];
             playerTitle.innerText = story.title;
             playerModal.classList.add("show");
             audio.src = story.audioSrc;
-            
-            // 播放故事时降低背景音乐音量（可自定义比例）
-            bgmPlayer.volume = parseFloat(bgmVolumeSlider.value) * 0.3;
-            
-            audio.play().then(() => {
-                // 故事播放结束后恢复背景音乐音量
-                audio.onended = () => {
-                    bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
-                };
-            });
+            audio.play();
         }
 
-        // 解锁VIP - 修复密码验证逻辑（增加去空格处理）
+        // 解锁VIP
         btnUnlock.onclick = () => {
-            // 去除输入密码的前后空格，避免空格导致验证失败
-            const inputPwd = vipPwdInput.value.trim();
-            if (inputPwd === VIP_PASSWORD) {
+            if (vipPwdInput.value === VIP_PASSWORD) {
                 vipModal.classList.remove("show");
                 playStory(currentStoryIndex);
             } else {
@@ -395,46 +330,20 @@
             vipModal.classList.remove("show");
         };
 
-        // 回车解锁 - 同步增加去空格处理
+        // 回车解锁
         vipPwdInput.onkeydown = (e) => {
-            if (e.key === "Enter") {
-                const inputPwd = vipPwdInput.value.trim();
-                if (inputPwd === VIP_PASSWORD) {
-                    vipModal.classList.remove("show");
-                    playStory(currentStoryIndex);
-                } else {
-                    alert("❌ 密码错误，请重试！");
-                    vipPwdInput.focus();
-                }
-            }
+            if (e.key === "Enter") btnUnlock.click();
         };
 
         // 播放器控制
-        document.getElementById("playBtn").onclick = () => {
-            audio.play();
-            // 播放时降低背景音乐
-            bgmPlayer.volume = parseFloat(bgmVolumeSlider.value) * 0.3;
-        };
-        document.getElementById("pauseBtn").onclick = () => {
-            audio.pause();
-            // 暂停时恢复背景音乐
-            bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
-        };
+        document.getElementById("playBtn").onclick = () => audio.play();
+        document.getElementById("pauseBtn").onclick = () => audio.pause();
         document.getElementById("stopBtn").onclick = () => {
             audio.pause();
             audio.currentTime = 0;
-            // 停止时恢复背景音乐
-            bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
         };
         document.getElementById("speedSelect").onchange = (e) => {
             audio.playbackRate = parseFloat(e.target.value);
-        };
-
-        // 进度条点击跳转
-        document.getElementById("progressBar").onclick = (e) => {
-            const rect = e.target.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = percent * audio.duration;
         };
 
         // 进度条
@@ -452,11 +361,11 @@
             return `${m}:${sec}`;
         }
 
-        // 移除主题切换相关代码（因为按钮已删除）
-        // const themeToggle = document.getElementById("themeToggle");
-        // themeToggle.onclick = () => {
-        //     document.documentElement.toggleAttribute("data-theme");
-        // };
+        // 主题切换
+        const themeToggle = document.getElementById("themeToggle");
+        themeToggle.onclick = () => {
+            document.documentElement.toggleAttribute("data-theme");
+        };
 
         // 流星雨背景
         setInterval(() => {
