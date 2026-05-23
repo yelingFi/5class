@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌠 流星雨故事会</title>
+    <style>
+        :root{
+            --bg:#0c1445;
+            --bg2:#1a237e;
+            --card:rgba(255,255,255,0.08);
+            --text:#f0f8ff;
+            --text2:#b3e5fc;
+            --btn:linear-gradient(45deg,#42a5f5,#7e57c2);
+            --shadow:rgba(129,212,250,0.2);
+        }
+        [data-theme="light"]{
+            --bg:#f5f7fa;
+            --bg2:#e4e8f0;
+            --card:rgba(0,0,0,0.05);
+            --text:#222;
+            --text2:#555;
+            --btn:linear-gradient(45deg,#64b5f6,#7986cb);
+            --shadow:rgba(0,0,0,0.1);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"微软雅黑",sans-serif;}
+        body{
+            min-height:100vh;
+            background:linear-gradient(var(--bg),var(--bg2));
+            color:var(--text);
+            overflow-x:hidden;
+            transition:background .5s ease,color .5s ease;
+        }
+        .star-bg{
+            position:fixed;top:0;left:0;
+            width:100%;height:100%;z-index:-1;
+        }
+        .shooting{
+            position:absolute;
+            background:linear-gradient(90deg,#fff,transparent);
+            border-radius:99px;filter:blur(2px);
+            animation:fall linear infinite;
+        }
+        @keyframes fall{
+            0%{transform:translate(0,0) rotate(-30deg);opacity:1;}
+            100%{transform:translate(-300px,500px) rotate(-30deg);opacity:0;}
+        }
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:20px;max-width:950px;margin:0 auto;
+        }
+        h1{font-size:1.8rem;text-shadow:0 0 10px var(--text2);}
+        #themeToggle{
+            padding:8px 16px;border:none;border-radius:20px;
+            background:var(--btn);color:#fff;cursor:pointer;
+        }
+        .container{max-width:950px;margin:0 auto;padding:20px;}
+        .list-title{margin:10px 0 15px;font-size:1.2rem;}
+        .story-list{
+            display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+            gap:12px;margin-bottom:40px;
+        }
+        .story-item{
+            background:var(--card);padding:14px;border-radius:12px;
+            border:1px solid rgba(255,255,255,0.1);cursor:pointer;
+            transition:transform .2s ease;
+            text-align:center;
+        }
+        .story-item:hover{transform:scale(1.03);}
+        .player-modal{
+            position:fixed;bottom:0;left:0;right:0;
+            background:var(--bg2);padding:22px;border-radius:20px 20px 0 0;
+            box-shadow:0 -5px 20px var(--shadow);
+            transform:translateY(100%);transition:transform .4s ease;
+            z-index:100;
+        }
+        .player-modal.show{transform:translateY(0);}
+        .player-title{font-size:1.2rem;margin-bottom:15px;text-align:center;}
+        .progress-wrap{margin:15px 0;}
+        .progress-bar{
+            width:100%;height:8px;border-radius:4px;
+            background:rgba(255,255,255,0.2);position:relative;cursor:pointer;
+        }
+        .progress-fill{
+            position:absolute;top:0;left:0;height:100%;
+            background:#64b5f6;border-radius:4px;width:0%;
+        }
+        .time-info{display:flex;justify-content:space-between;font-size:.9rem;color:var(--text2);margin-top:8px;}
+        .controls{display:flex;align-items:center;justify-content:center;gap:15px;flex-wrap:wrap;margin-top:10px;}
+        .ctrl-btn{
+            padding:10px 20px;border:none;border-radius:30px;
+            background:var(--btn);color:#fff;cursor:pointer;
+            font-size:0.95rem;
+        }
+        .speed-select{
+            padding:8px;border-radius:8px;background:var(--card);color:var(--text);border:none;outline:none;
+        }
+        footer{text-align:center;padding:20px;color:var(--text2);font-size:.9rem;}
+    </style>
+</head>
+<body>
+    <div class="star-bg" id="starBox"></div>
+    <header>
+        <h1>🌠 流星雨故事会</h1>
+        <button id="themeToggle">切换黑白模式</button>
+    </header>
+    <div class="container">
+        <h2 class="list-title">故事列表 · 点击播放音频</h2>
+        <div class="story-list" id="storyList"></div>
+    </div>
+    <audio id="audioPlayer"></audio>
+    <div class="player-modal" id="playerModal">
+        <div class="player-title" id="playerTitle">暂无播放曲目</div>
+        <div class="progress-wrap">
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="time-info">
+                <span id="currentTime">00:00</span>
+                <span id="totalTime">00:00</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="ctrl-btn" id="playBtn">播放</button>
+            <button class="ctrl-btn" id="pauseBtn">暂停</button>
+            <button class="ctrl-btn" id="stopBtn">停止</button>
+            <select class="speed-select" id="speedSelect">
+                <option value="0.75">0.75倍</option>
+                <option value="1" selected>1.0倍</option>
+                <option value="1.25">1.25倍</option>
+                <option value="1.5">1.5倍</option>
+            </select>
+        </div>
+    </div>
+    <footer>流星雨睡前故事 | 未完待续 | 特邀流星雨 </footer>
+
+    <script>
+        // ==============================================
+        // 🔥 50个故事 每个一行！直接改名字和音频路径即可
+        // ==============================================
+        const storyList = [
+            { title: "喜欢下雨的小猫", audioSrc: "./audio/story1.mp3" },
+            { title: "故事02", audioSrc: "audio/story02.mp3" },
+            { title: "故事03", audioSrc: "audio/story03.mp3" },
+            { title: "故事04", audioSrc: "audio/story04.mp3" },
+            { title: "故事05", audioSrc: "audio/story05.mp3" },
+            { title: "故事06", audioSrc: "audio/story06.mp3" },
+            { title: "故事07", audioSrc: "audio/story07.mp3" },
+            { title: "故事08", audioSrc: "audio/story08.mp3" },
+            { title: "故事09", audioSrc: "audio/story09.mp3" },
+            { title: "故事10", audioSrc: "audio/story10.mp3" },
+            { title: "故事11", audioSrc: "audio/story11.mp3" },
+            { title: "故事12", audioSrc: "audio/story12.mp3" },
+            { title: "故事13", audioSrc: "audio/story13.mp3" },
+            { title: "故事14", audioSrc: "audio/story14.mp3" },
+            { title: "故事15", audioSrc: "audio/story15.mp3" },
+            { title: "故事16", audioSrc: "audio/story16.mp3" },
+            { title: "故事17", audioSrc: "audio/story17.mp3" },
+            { title: "故事18", audioSrc: "audio/story18.mp3" },
+            { title: "故事19", audioSrc: "audio/story19.mp3" },
+            { title: "故事20", audioSrc: "audio/story20.mp3" },
+            { title: "故事21", audioSrc: "audio/story21.mp3" },
+            { title: "故事22", audioSrc: "audio/story22.mp3" },
+            { title: "故事23", audioSrc: "audio/story23.mp3" },
+            { title: "故事24", audioSrc: "audio/story24.mp3" },
+            { title: "故事25", audioSrc: "audio/story25.mp3" },
+            { title: "故事26", audioSrc: "audio/story26.mp3" },
+            { title: "故事27", audioSrc: "audio/story27.mp3" },
+            { title: "故事28", audioSrc: "audio/story28.mp3" },
+            { title: "故事29", audioSrc: "audio/story29.mp3" },
+            { title: "故事30", audioSrc: "audio/story30.mp3" },
+            { title: "故事31", audioSrc: "audio/story31.mp3" },
+            { title: "故事32", audioSrc: "audio/story32.mp3" },
+            { title: "故事33", audioSrc: "audio/story33.mp3" },
+            { title: "故事34", audioSrc: "audio/story34.mp3" },
+            { title: "故事35", audioSrc: "audio/story35.mp3" },
+            { title: "故事36", audioSrc: "audio/story36.mp3" },
+            { title: "故事37", audioSrc: "audio/story37.mp3" },
+            { title: "故事38", audioSrc: "audio/story38.mp3" },
+            { title: "故事39", audioSrc: "audio/story39.mp3" },
+            { title: "故事40", audioSrc: "audio/story40.mp3" },
+            { title: "故事41", audioSrc: "audio/story41.mp3" },
+            { title: "故事42", audioSrc: "audio/story42.mp3" },
+            { title: "故事43", audioSrc: "audio/story43.mp3" },
+            { title: "故事44", audioSrc: "audio/story44.mp3" },
+            { title: "故事45", audioSrc: "audio/story45.mp3" },
+            { title: "故事46", audioSrc: "audio/story46.mp3" },
+            { title: "故事47", audioSrc: "audio/story47.mp3" },
+            { title: "故事48", audioSrc: "audio/story48.mp3" },
+            { title: "故事49", audioSrc: "audio/story49.mp3" },
+            { title: "故事50", audioSrc: "audio/story50.mp3" }
+        ];
+
+        // 渲染列表
+        const listDom = document.getElementById("storyList");
+        storyList.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "story-item";
+            div.innerText = item.title;
+            div.onclick = () => openAudioPlayer(index);
+            listDom.appendChild(div);
+        });
+
+        // 播放器核心
+        const audio = document.getElementById("audioPlayer");
+        const playerBox = document.getElementById("playerModal");
+        const playerName = document.getElementById("playerTitle");
+        const progressBar = document.getElementById("progressBar");
+        const progressFill = document.getElementById("progressFill");
+        const curTime = document.getElementById("currentTime");
+        const allTime = document.getElementById("totalTime");
+        const playBtn = document.getElementById("playBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const speedSel = document.getElementById("speedSelect");
+        let nowPlayIndex = null;
+
+        function openAudioPlayer(idx){
+            nowPlayIndex = idx;
+            const info = storyList[idx];
+            playerName.innerText = info.title;
+            playerBox.classList.add("show");
+            resetAudio();
+            audio.src = info.audioSrc;
+            audio.playbackRate = parseFloat(speedSel.value);
+            audio.play();
+        }
+
+        function timeFormat(second){
+            let m = Math.floor(second / 60);
+            let s = Math.floor(second % 60);
+            return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+        }
+
+        audio.addEventListener("timeupdate",()=>{
+            if(!audio.duration) return;
+            let percent = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = percent + "%";
+            curTime.innerText = timeFormat(audio.currentTime);
+            allTime.innerText = timeFormat(audio.duration);
+        });
+
+        progressBar.addEventListener("click",(e)=>{
+            if(!audio.duration) return;
+            let barRect = progressBar.getBoundingClientRect();
+            let clickX = e.clientX - barRect.left;
+            let ratio = clickX / barRect.width;
+            audio.currentTime = ratio * audio.duration;
+        });
+
+        playBtn.onclick = ()=>{ if(nowPlayIndex!==null) audio.play(); };
+        pauseBtn.onclick = ()=> audio.pause();
+        stopBtn.onclick = resetAudio;
+
+        speedSel.onchange = ()=>{
+            audio.playbackRate = parseFloat(speedSel.value);
+        };
+
+        function resetAudio(){
+            audio.pause();
+            audio.currentTime = 0;
+            progressFill.style.width = "0%";
+            curTime.innerText = "00:00";
+            allTime.innerText = "00:00";
+        }
+
+        // 主题切换
+        const themeBtn = document.getElementById("themeToggle");
+        const htmlRoot = document.documentElement;
+        if(localStorage.getItem("storyTheme")==="light"){
+            htmlRoot.setAttribute("data-theme","light");
+        }
+        themeBtn.onclick = ()=>{
+            if(htmlRoot.hasAttribute("data-theme")){
+                htmlRoot.removeAttribute("data-theme");
+                localStorage.setItem("storyTheme","dark");
+            }else{
+                htmlRoot.setAttribute("data-theme","light");
+                localStorage.setItem("storyTheme","light");
+            }
+        };
+
+        // 流星雨
+        function createShootStar(){
+            const box = document.getElementById("starBox");
+            const star = document.createElement("div");
+            star.className = "shooting";
+            let len = Math.random()*70+25;
+            star.style.width = len+"px";
+            star.style.height = "2px";
+            star.style.top = Math.random()*45+"%";
+            star.style.left = Math.random()*100+"%";
+            let runTime = Math.random()*4+2.5;
+            star.style.animationDuration = runTime+"s";
+            box.appendChild(star);
+            setTimeout(()=> star.remove(), runTime*1000);
+        }
+        setInterval(createShootStar,350);
+    </script>
+</body>
+</html>
