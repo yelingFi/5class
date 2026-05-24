@@ -171,6 +171,7 @@
     <header>
         <h1>🌠 流星雨故事会</h1>
         <div style="display:flex;align-items:center;">
+            <!-- 移除了点我没用按钮 -->
             <!-- 新增：背景音乐音量控制 -->
             <div class="bgm-control">
                 <span class="bgm-label">背景音乐：</span>
@@ -227,7 +228,7 @@
             </div>
         </div>
     </div>
-    <footer>流星雨睡前故事 | 未完待续 | 特邀:流星雨,zino(排名不分先后)   <a href="./pyq/index.html" target="_blank" style="color:#409eff;text-decoration:none;">🌠流星雨的朋友圈👋~</a></footer>
+    <footer>流星雨睡前故事 | 未完待续 | 特邀:流星雨,zino(排名不分先后)</footer>
 
     <script>
         // ==============================================
@@ -343,21 +344,6 @@
             bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
         });
 
-        // 监听音频元数据加载完成事件（核心修复：确保能获取到总时长）
-        audio.addEventListener('loadedmetadata', () => {
-            // 元数据加载完成后更新总时长
-            totalTimeEl.innerText = fmtTime(audio.duration);
-            // 强制触发一次进度更新
-            updateProgress();
-        });
-
-        // 监听音频加载错误
-        audio.addEventListener('error', (e) => {
-            console.error("音频加载失败:", e);
-            alert("音频加载失败，请检查文件路径是否正确！");
-            totalTimeEl.innerText = "00:00";
-        });
-
         // 打开故事
         function openStory(idx) {
             const story = storyList[idx];
@@ -378,13 +364,6 @@
             const story = storyList[idx];
             playerTitle.innerText = story.title;
             playerModal.classList.add("show");
-            
-            // 重置播放器状态
-            audio.currentTime = 0;
-            progressFill.style.width = "0%";
-            currentTimeEl.innerText = "00:00";
-            totalTimeEl.innerText = "00:00";
-            
             audio.src = story.audioSrc;
             
             // 播放故事时降低背景音乐音量（可自定义比例）
@@ -395,9 +374,6 @@
                 audio.onended = () => {
                     bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
                 };
-            }).catch(err => {
-                console.error("音频播放失败:", err);
-                alert("音频播放失败，请检查文件是否存在或浏览器权限！");
             });
         }
 
@@ -435,10 +411,7 @@
 
         // 播放器控制
         document.getElementById("playBtn").onclick = () => {
-            audio.play().catch(err => {
-                console.error("播放失败:", err);
-                alert("播放失败，请检查音频文件！");
-            });
+            audio.play();
             // 播放时降低背景音乐
             bgmPlayer.volume = parseFloat(bgmVolumeSlider.value) * 0.3;
         };
@@ -450,8 +423,6 @@
         document.getElementById("stopBtn").onclick = () => {
             audio.pause();
             audio.currentTime = 0;
-            progressFill.style.width = "0%";
-            currentTimeEl.innerText = "00:00";
             // 停止时恢复背景音乐
             bgmPlayer.volume = parseFloat(bgmVolumeSlider.value);
         };
@@ -463,40 +434,29 @@
         document.getElementById("progressBar").onclick = (e) => {
             const rect = e.target.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
-            if (!isNaN(audio.duration)) {
-                audio.currentTime = percent * audio.duration;
-                updateProgress();
-            }
+            audio.currentTime = percent * audio.duration;
         };
 
-        // 优化进度更新函数
-        function updateProgress() {
-            if (isNaN(audio.duration) || audio.duration === Infinity) {
-                progressFill.style.width = "0%";
-                currentTimeEl.innerText = "00:00";
-                totalTimeEl.innerText = "00:00";
-                return;
-            }
-            
+        // 进度条
+        audio.ontimeupdate = () => {
+            if (!audio.duration) return;
             const percent = (audio.currentTime / audio.duration) * 100;
             progressFill.style.width = percent + "%";
             currentTimeEl.innerText = fmtTime(audio.currentTime);
             totalTimeEl.innerText = fmtTime(audio.duration);
-        }
+        };
 
-        // 进度条实时更新
-        audio.ontimeupdate = updateProgress;
-
-        // 优化时长格式化函数（处理NaN/Infinity）
         function fmtTime(s) {
-            // 处理无效时长
-            if (isNaN(s) || s === Infinity || s < 0) {
-                return "00:00";
-            }
             const m = Math.floor(s / 60).toString().padStart(2, "0");
             const sec = Math.floor(s % 60).toString().padStart(2, "0");
             return `${m}:${sec}`;
         }
+
+        // 移除主题切换相关代码（因为按钮已删除）
+        // const themeToggle = document.getElementById("themeToggle");
+        // themeToggle.onclick = () => {
+        //     document.documentElement.toggleAttribute("data-theme");
+        // };
 
         // 流星雨背景
         setInterval(() => {

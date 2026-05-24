@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微博访客个人主页</title>
+    <link rel="stylesheet" href="./file/tx.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        /* 顶部标题栏 无图标 */
+        .top-bar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #fff;
+        }
+        /* 封面改为本地图片，自行替换路径 */
+        .cover {
+            width: 100%;
+            height: 180px;
+            background: url("bg.jpg") center/cover no-repeat;
+            position: relative;
+        }
+        .profile-card {
+            background: white;
+            margin: -60px 15px 15px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            position: absolute;
+            top: -50px;
+            left: 20px;
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-top: 50px;
+        }
+        .name {
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .verify {
+            color: #e6162d;
+            font-size: 16px;
+        }
+        .intro {
+            color: #666;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .location {
+            color: #999;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .data {
+            display: flex;
+            margin: 15px 0;
+            gap: 25px;
+        }
+        .data-item {
+            text-align: center;
+        }
+        .num {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .text {
+            font-size: 13px;
+            color: #999;
+        }
+        .weibo-list {
+            background: white;
+            margin: 0 15px 15px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .weibo-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .weibo-item:last-child {
+            border-bottom: none;
+        }
+        .weibo-content {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .weibo-img {
+            max-width: 280px;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        .weibo-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .weibo-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+            color: #999;
+            font-size: 14px;
+        }
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .cover {
+                height: 150px;
+            }
+            .avatar {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">个人主页</div>
+
+    <div class="cover"></div>
+
+    <div class="profile-card">
+        <img src="https://picsum.photos/200/200" alt="头像" class="avatar">
+        <div class="profile-info">
+            <div class="name">
+                快乐打工人
+                <i class="fa-solid fa-certificate verify"></i>
+            </div>
+            <div class="intro">热爱生活｜分享日常｜努力搬砖的新媒体人 ✍️</div>
+            <div class="location">
+                <i class="fa-solid fa-location-dot"></i>
+                北京 · 朝阳区
+            </div>
+            <div class="data">
+                <div class="data-item">
+                    <div class="num">328</div>
+                    <div class="text">微博</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">1.2万</div>
+                    <div class="text">粉丝</div>
+                </div>
+                <div class="data-item">
+                    <div class="num">568</div>
+                    <div class="text">关注</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weibo-list">
+        <div class="weibo-item">
+            <div class="weibo-content">今天的晚霞也太美了吧！治愈一天的疲惫～🌇</div>
+            <img src="https://picsum.photos/600/400?random=1" alt="微博图片" class="weibo-img">
+            <div class="weibo-time">今天 18:30 来自 iPhone 15 Pro</div>
+            <div class="weibo-actions">
+                <div class="action-item"><i class="fa-regular fa-heart"></i> 326</div>
+            </div>
+        </div>
+        <div class="weibo-item">
+            <div class="weibo-content">分享一家超好吃的火锅店，推荐大家去打卡！🥘</div>
+            <div class="weibo-time">昨天 12:15 来自 安卓客户端</div>
+            <div class="weibo-actions">
+                <div class="action-item"><i class="fa-regular fa-heart"></i> 189</div>
+            </div>
+        </div>
+        <div class="weibo-item">
+            <div class="weibo-content">打工人的周一，全靠咖啡续命☕️</div>
+            <div class="weibo-time">06月16日 08:40 来自 iPhone 15 Pro</div>
+            <div class="weibo-actions">
+                <div class="action-item"><i class="fa-regular fa-heart"></i> 124</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
