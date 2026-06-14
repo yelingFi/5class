@@ -3,205 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微博访客个人主页</title>
-    <link rel="stylesheet" href="./file/tx.jpg">
+    <title>轻奢灰调朋友圈</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
+
+        /* 浅灰黑底色，告别纯死黑 */
         body {
-            background-color: #f5f5f5;
-            color: #333;
+            background: #121217;
+            color: #e2e2e8;
+            min-height: 100vh;
         }
-        /* 顶部标题栏 无图标 */
-        .top-bar {
-            height: 44px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            font-size: 18px;
-            font-weight: bold;
-            background: #fff;
-        }
-        /* 封面改为本地图片，自行替换路径 */
-        .cover {
+
+        /* 顶部全屏个人区域 */
+        .profile-wrap {
             width: 100%;
-            height: 180px;
-            background: url("bg.jpg") center/cover no-repeat;
+            height: 50vh;
             position: relative;
+            overflow: hidden;
         }
-        .profile-card {
-            background: white;
-            margin: -60px 15px 15px;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
+
+        .bg-full {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            filter: brightness(0.58) saturate(0.9);
         }
+
+        /* 渐变遮罩，提升高级感 */
+        .profile-mask {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, #121217, transparent);
+        }
+
+        .profile-info {
+            position: absolute;
+            bottom: 45px;
+            left: 5%;
+            right: 5%;
+            display: flex;
+            align-items: flex-end;
+            gap: 22px;
+        }
+
         .avatar {
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 4px solid white;
-            position: absolute;
-            top: -50px;
-            left: 20px;
+            border: 3px solid rgba(255,255,255,0.15);
             object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .profile-info {
-            margin-top: 50px;
+
+        .user-name {
+            font-size: 26px;
+            font-weight: 500;
+            color: #ffffff;
+            letter-spacing: 0.5px;
         }
-        .name {
-            font-size: 22px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .verify {
-            color: #e6162d;
-            font-size: 16px;
-        }
-        .intro {
-            color: #666;
-            margin: 8px 0;
-            font-size: 14px;
-        }
-        .location {
-            color: #999;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .data {
-            display: flex;
-            margin: 15px 0;
-            gap: 25px;
-        }
-        .data-item {
-            text-align: center;
-        }
-        .num {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .text {
-            font-size: 13px;
-            color: #999;
-        }
-        .weibo-list {
-            background: white;
-            margin: 0 15px 15px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .weibo-item {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .weibo-item:last-child {
-            border-bottom: none;
-        }
-        .weibo-content {
+
+        .sign-desc {
             font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 10px;
+            color: #a8a8b8;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
         }
-        .weibo-img {
-            max-width: 280px;
+
+        /* 朋友圈内容区 */
+        .moments {
             width: 100%;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 45px 5%;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .moment-item {
+            margin-bottom: 50px;
+            padding-bottom: 35px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .moment-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .moment-img {
+            width: 100%;
+            border-radius: 14px;
             object-fit: cover;
+            max-height: 72vh;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
         }
-        .weibo-time {
-            font-size: 12px;
-            color: #999;
+
+        .moment-text {
+            font-size: 16px;
+            color: #d0d0dc;
+            margin: 18px 0 10px;
+            line-height: 1.75;
         }
-        .weibo-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-            color: #999;
-            font-size: 14px;
+
+        .moment-time {
+            font-size: 13px;
+            color: #78788c;
         }
-        .action-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
-        @media (max-width: 768px) {
-            .cover {
-                height: 150px;
-            }
+
+        /* 桌面端大屏适配 */
+        @media (min-width: 768px) {
             .avatar {
-                width: 80px;
-                height: 80px;
+                width: 120px;
+                height: 120px;
+            }
+            .user-name {
+                font-size: 32px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">个人主页</div>
-
-    <div class="cover"></div>
-
-    <div class="profile-card">
-        <img src="https://picsum.photos/200/200" alt="头像" class="avatar">
+    <!-- 顶部背景+个人信息 -->
+    <div class="profile-wrap">
+        <img class="bg-full" src="./file/bj.jpg" alt="背景图">
+        <div class="profile-mask"></div>
         <div class="profile-info">
-            <div class="name">
-                快乐打工人
-                <i class="fa-solid fa-certificate verify"></i>
-            </div>
-            <div class="intro">热爱生活｜分享日常｜努力搬砖的新媒体人 ✍️</div>
-            <div class="location">
-                <i class="fa-solid fa-location-dot"></i>
-                北京 · 朝阳区
-            </div>
-            <div class="data">
-                <div class="data-item">
-                    <div class="num">328</div>
-                    <div class="text">微博</div>
-                </div>
-                <div class="data-item">
-                    <div class="num">1.2万</div>
-                    <div class="text">粉丝</div>
-                </div>
-                <div class="data-item">
-                    <div class="num">568</div>
-                    <div class="text">关注</div>
-                </div>
+            <img class="avatar" src="./file/tx.jpg" alt="头像">
+            <div class="user-box">
+                <div class="user-name">L🍟</div>
+                <p class="sign-desc">Light xing youth</p>
             </div>
         </div>
     </div>
 
-    <div class="weibo-list">
-        <div class="weibo-item">
-            <div class="weibo-content">今天的晚霞也太美了吧！治愈一天的疲惫～🌇</div>
-            <img src="https://picsum.photos/600/400?random=1" alt="微博图片" class="weibo-img">
-            <div class="weibo-time">今天 18:30 来自 iPhone 15 Pro</div>
-            <div class="weibo-actions">
-                <div class="action-item"><i class="fa-regular fa-heart"></i> 326</div>
-            </div>
+    <!-- 三条朋友圈动态 -->
+    <div class="moments">
+        <div class="moment-item">
+            <img class="moment-img" src="" alt="配图">
+            <p class="moment-text">gggggggggggggggggg</p>
+            <p class="moment-time">2026-06-14 11:30</p>
         </div>
-        <div class="weibo-item">
-            <div class="weibo-content">分享一家超好吃的火锅店，推荐大家去打卡！🥘</div>
-            <div class="weibo-time">昨天 12:15 来自 安卓客户端</div>
-            <div class="weibo-actions">
-                <div class="action-item"><i class="fa-regular fa-heart"></i> 189</div>
-            </div>
+
+        <div class="moment-item">
+            <img class="moment-img" src="" alt="配图">
+            <p class="moment-text">gggggggggggg</p>
+            <p class="moment-time">2026-06-13 19:10</p>
         </div>
-        <div class="weibo-item">
-            <div class="weibo-content">打工人的周一，全靠咖啡续命☕️</div>
-            <div class="weibo-time">06月16日 08:40 来自 iPhone 15 Pro</div>
-            <div class="weibo-actions">
-                <div class="action-item"><i class="fa-regular fa-heart"></i> 124</div>
-            </div>
+
+        <div class="moment-item">
+            <img class="moment-img" src="" alt="配图">
+            <p class="moment-text">gggggggggggggggggggg</p>
+            <p class="moment-time">2026-06-12 08:45</p>
         </div>
     </div>
 </body>
