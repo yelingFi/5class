@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>360全景查看器</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{overflow:hidden;background:#000;font-family:system-ui,-apple-system,sans-serif;}
+#viewer{width:100vw;height:100vh;}
+
+#toggleBtn{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  z-index:1000;
+  padding:10px 16px;
+  background:rgba(0,0,0,0.65);
+  color:#fff;
+  border:1px solid #777;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+#panel{
+  position:absolute;
+  bottom:70px;
+  right:20px;
+  z-index:999;
+  background:rgba(0,0,0,0.72);
+  padding:12px;
+  border-radius:10px;
+  display:none;
+  max-height:55vh;
+  overflow-y:auto;
+  min-width:140px;
+}
+#panel.show{display:block;}
+
+.menu-item{
+  color:#fff;
+  padding:10px 12px;
+  cursor:pointer;
+  border-radius:4px;
+  margin-bottom:4px;
+  font-size:14px;
+}
+.menu-item:last-child{margin-bottom:0;}
+.menu-item.active{background:rgba(255,255,255,0.25);}
+.menu-item:hover{background:rgba(255,255,255,0.12);}
+</style>
+</head>
+<body>
+<div id="viewer"></div>
+<button id="toggleBtn">切换场景</button>
+<div id="panel"></div>
+
+<script>
+// 菜单显示文字，可自行修改
+const sceneNames = [
+  "五中教室",
+  "六中教室",
+  "六中教室前",
+  "场景3",
+  "场景4",
+  "场景5",
+  "场景6",
+  "场景7",
+  "场景8",
+  "场景9"
+];
+// 相对路径，图片存放在服务器和html相同文件夹
+const sceneFiles = [
+  "p0.jpg","p1.jpg","p2.jpg","p3.jpg","p4.jpg",
+  "p5.jpg","p6.jpg","p7.jpg","p8.jpg","p9.jpg"
+];
+
+let current = 0;
+let viewer;
+const toggleBtn = document.getElementById("toggleBtn");
+const panel = document.getElementById("panel");
+
+toggleBtn.onclick = ()=> panel.classList.toggle("show");
+
+// 渲染右侧选择菜单
+function renderMenu(){
+  panel.innerHTML = "";
+  for(let i=0;i<10;i++){
+    const div = document.createElement("div");
+    div.className = "menu-item";
+    div.innerText = sceneNames[i];
+    if(i === current) div.classList.add("active");
+    div.onclick = function(){
+      current = i;
+      document.querySelectorAll(".menu-item").forEach(el=>el.classList.remove("active"));
+      div.classList.add("active");
+      // 加载服务器上的全景图片
+      viewer.loadScene(sceneFiles[current]);
+      panel.classList.remove("show");
+    }
+    panel.appendChild(div);
+  }
+}
+
+window.onload = function(){
+  viewer = pannellum.viewer("viewer",{
+    type:"equirectangular",
+    panorama: sceneFiles[current],
+    autoLoad:true,
+    showControls:false
+  });
+  renderMenu();
+};
+</script>
+</body>
+</html>
