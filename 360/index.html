@@ -59,11 +59,10 @@ body{overflow:hidden;background:#000;font-family:system-ui,-apple-system,sans-se
 <div id="panel"></div>
 
 <script>
-// 菜单显示文字，可自行修改
 const sceneNames = [
-  "五中教室",
-  "六中教室",
-  "六中教室前",
+  "场景0",
+  "场景1",
+  "场景2",
   "场景3",
   "场景4",
   "场景5",
@@ -72,7 +71,7 @@ const sceneNames = [
   "场景8",
   "场景9"
 ];
-// 相对路径，图片存放在服务器和html相同文件夹
+// 和html同服务器目录
 const sceneFiles = [
   "p0.jpg","p1.jpg","p2.jpg","p3.jpg","p4.jpg",
   "p5.jpg","p6.jpg","p7.jpg","p8.jpg","p9.jpg"
@@ -85,7 +84,6 @@ const panel = document.getElementById("panel");
 
 toggleBtn.onclick = ()=> panel.classList.toggle("show");
 
-// 渲染右侧选择菜单
 function renderMenu(){
   panel.innerHTML = "";
   for(let i=0;i<10;i++){
@@ -97,8 +95,8 @@ function renderMenu(){
       current = i;
       document.querySelectorAll(".menu-item").forEach(el=>el.classList.remove("active"));
       div.classList.add("active");
-      // 加载服务器上的全景图片
-      viewer.loadScene(sceneFiles[current]);
+      // 正确方式：setPanorama 直接更换全景图
+      viewer.setPanorama(sceneFiles[current]);
       panel.classList.remove("show");
     }
     panel.appendChild(div);
