@@ -48,7 +48,6 @@ body{overflow:hidden;background:#000;font-family:system-ui,-apple-system,sans-se
   margin-bottom:4px;
   font-size:14px;
 }
-.menu-item:last-child{margin-bottom:0;}
 .menu-item.active{background:rgba(255,255,255,0.25);}
 .menu-item:hover{background:rgba(255,255,255,0.12);}
 </style>
@@ -60,25 +59,16 @@ body{overflow:hidden;background:#000;font-family:system-ui,-apple-system,sans-se
 
 <script>
 const sceneNames = [
-  "场景0",
-  "场景1",
-  "场景2",
-  "场景3",
-  "场景4",
-  "场景5",
-  "场景6",
-  "场景7",
-  "场景8",
-  "场景9"
+  "场景0","场景1","场景2","场景3","场景4",
+  "场景5","场景6","场景7","场景8","场景9"
 ];
-// 和html同服务器目录
 const sceneFiles = [
   "p0.jpg","p1.jpg","p2.jpg","p3.jpg","p4.jpg",
   "p5.jpg","p6.jpg","p7.jpg","p8.jpg","p9.jpg"
 ];
 
 let current = 0;
-let viewer;
+let viewer = null;
 const toggleBtn = document.getElementById("toggleBtn");
 const panel = document.getElementById("panel");
 
@@ -95,21 +85,35 @@ function renderMenu(){
       current = i;
       document.querySelectorAll(".menu-item").forEach(el=>el.classList.remove("active"));
       div.classList.add("active");
-      // 正确方式：setPanorama 直接更换全景图
-      viewer.setPanorama(sceneFiles[current]);
+      // 销毁旧实例，重新创建，规避loadScene在pages的bug
+      destroyViewer();
+      createViewer(sceneFiles[current]);
       panel.classList.remove("show");
     }
     panel.appendChild(div);
   }
 }
 
-window.onload = function(){
+function destroyViewer(){
+  if(viewer){
+    viewer.destroy();
+    viewer = null;
+  }
+  // 清空dom容器
+  document.getElementById('viewer').innerHTML = '';
+}
+
+function createViewer(imgUrl){
   viewer = pannellum.viewer("viewer",{
     type:"equirectangular",
-    panorama: sceneFiles[current],
+    panorama: imgUrl,
     autoLoad:true,
     showControls:false
   });
+}
+
+window.onload = function(){
+  createViewer(sceneFiles[current]);
   renderMenu();
 };
 </script>
