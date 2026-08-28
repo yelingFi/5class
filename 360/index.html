@@ -1,6 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>360全景查看器</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{overflow:hidden;background:#000;font-family:system-ui,-apple-system,sans-serif;}
+#viewer{width:100vw;height:100vh;}
+
+#toggleBtn{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  z-index:1000;
+  padding:10px 16px;
+  background:rgba(0,0,0,0.65);
+  color:#fff;
+  border:1px solid #777;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+#panel{
+  position:absolute;
+  bottom:70px;
+  right:20px;
+  z-index:999;
+  background:rgba(0,0,0,0.72);
+  padding:12px;
+  border-radius:10px;
+  display:none;
+  max-height:55vh;
+  overflow-y:auto;
+  min-width:140px;
+}
+#panel.show{display:block;}
+
+.menu-item{
+  color:#fff;
+  padding:10px 12px;
+  cursor:pointer;
+  border-radius:4px;
+  margin-bottom:4px;
+  font-size:14px;
+}
+.menu-item.active{background:rgba(255,255,255,0.25);}
+.menu-item:hover{background:rgba(255,255,255,0.12);}
+</style>
+</head>
+<body>
+<div id="viewer"></div>
+<button id="toggleBtn">切换场景</button>
+<div id="panel"></div>
+
 <script>
 const sceneNames = [
-  "场景0","场景1","场景2","场景3","场景4",
+  "五中教室","六中教室","六中教室前","场景3","场景4",
   "场景5","场景6","场景7","场景8","场景9"
 ];
 const sceneFiles = [
@@ -10,45 +69,10 @@ const sceneFiles = [
 
 let current = 0;
 let viewer = null;
-let currentBlobUrl = null;
 const toggleBtn = document.getElementById("toggleBtn");
 const panel = document.getElementById("panel");
 
 toggleBtn.onclick = ()=> panel.classList.toggle("show");
-
-// 获取本机WebGL硬件最大纹理尺寸
-function getDeviceMaxTexture(){
-  const canvas = document.createElement('canvas');
-  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-  if(!gl) return 8192;
-  return gl.getParameter(gl.MAX_TEXTURE_SIZE);
-}
-
-// 下载图片，canvas缩放，返回blob临时URL
-async function scaleImageToMaxSize(imgSrc, maxW){
-  return new Promise((resolve)=>{
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = ()=>{
-      let targetW = img.width;
-      let targetH = img.height;
-      if(targetW > maxW){
-        targetW = maxW;
-        targetH = Math.floor(img.height * (maxW / img.width));
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = targetW;
-      canvas.height = targetH;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img,0,0,targetW,targetH);
-      canvas.toBlob((blob)=>{
-        const url = URL.createObjectURL(blob);
-        resolve(url);
-      },"image/jpeg",0.85);
-    };
-    img.src = imgSrc;
-  })
-}
 
 function renderMenu(){
   panel.innerHTML = "";
@@ -57,16 +81,13 @@ function renderMenu(){
     div.className = "menu-item";
     div.innerText = sceneNames[i];
     if(i === current) div.classList.add("active");
-    div.onclick = async function(){
+    div.onclick = function(){
       current = i;
       document.querySelectorAll(".menu-item").forEach(el=>el.classList.remove("active"));
       div.classList.add("active");
+      // 销毁旧实例，重新创建，规避loadScene在pages的bug
       destroyViewer();
-      const devMax = getDeviceMaxTexture();
-      // 前端动态缩放全景图到设备允许宽度
-      const scaledUrl = await scaleImageToMaxSize(sceneFiles[current], devMax);
-      currentBlobUrl = scaledUrl;
-      createViewer(scaledUrl);
+      createViewer(sceneFiles[current]);
       panel.classList.remove("show");
     }
     panel.appendChild(div);
@@ -78,12 +99,8 @@ function destroyViewer(){
     viewer.destroy();
     viewer = null;
   }
+  // 清空dom容器
   document.getElementById('viewer').innerHTML = '';
-  // 释放内存，避免内存泄漏
-  if(currentBlobUrl){
-    URL.revokeObjectURL(currentBlobUrl);
-    currentBlobUrl = null;
-  }
 }
 
 function createViewer(imgUrl){
@@ -95,11 +112,10 @@ function createViewer(imgUrl){
   });
 }
 
-window.onload = async function(){
-  const devMax = getDeviceMaxTexture();
-  const scaledUrl = await scaleImageToMaxSize(sceneFiles[current], devMax);
-  currentBlobUrl = scaledUrl;
-  createViewer(scaledUrl);
+window.onload = function(){
+  createViewer(sceneFiles[current]);
   renderMenu();
 };
 </script>
+</body>
+</html>
